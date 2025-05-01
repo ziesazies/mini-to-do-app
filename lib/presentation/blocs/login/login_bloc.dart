@@ -18,7 +18,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     await Future.delayed(Duration(seconds: 1));
     if (event.username == "admin" && event.password == "admin") {
       final prefs = await SharedPreferences.getInstance();
-      // await prefs.setBool("is_logged_in", true);
+      await prefs.setBool("is_logged_in", true);
       emit(LoginSuccess());
     } else {
       emit(LoginFailure("Invalid username and password"));
