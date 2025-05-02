@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:implicitly_animated_reorderable_list_2/implicitly_animated_reorderable_list_2.dart';
+import 'package:implicitly_animated_reorderable_list_2/transitions.dart';
 import 'package:mini_to_do_app/domain/entities/todo.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_bloc.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_event.dart';
@@ -34,23 +36,57 @@ class TodoListPage extends StatelessWidget {
       body: BlocBuilder<TodoBloc, TodoState>(
         builder: (context, state) {
           if (state is TodoLoaded) {
-            return ListView.builder(
-              itemCount: state.todos.length,
-              itemBuilder: (_, index) {
-                final todo = state.todos[index];
-                return ListTile(
-                  title: Text(todo.title),
-                  subtitle: Text(todo.category),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
+            final todos = [...state.todos];
+            todos.sort((a, b) {
+              if (a.isDone && !b.isDone) return 1;
+              if (!a.isDone && b.isDone) return -1;
+              return 0;
+            });
+            return ImplicitlyAnimatedList<Todo>(
+              areItemsTheSame: (oldItem, newItem) => oldItem.id == newItem.id,
+              items: todos,
+              itemBuilder: (context, animation, todo, index) {
+                return SizeFadeTransition(
+                  animation: animation,
+                  child: Dismissible(
+                    key: Key(todo.id),
+                    background: Container(
+                      color: Colors.red,
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.symmetric(horizontal: 50),
+                      child: const Icon(Icons.delete, color: Colors.white),
+                    ),
+                    secondaryBackground: Container(
+                      color: Colors.red,
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.symmetric(horizontal: 50),
+                      child: const Icon(Icons.delete, color: Colors.white),
+                    ),
+                    direction: DismissDirection.horizontal,
+                    onDismissed: (_) {
                       context.read<TodoBloc>().add(DeleteTodo(todo.id));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('${todo.title} deleted')),
+                      );
                     },
+                    child: ListTile(
+                      title: Text(
+                        todo.title,
+                        style: TextStyle(
+                          decoration:
+                              todo.isDone ? TextDecoration.lineThrough : null,
+                        ),
+                      ),
+                      subtitle: Text(todo.category),
+                      trailing: Checkbox(
+                        value: todo.isDone,
+                        onChanged: (value) {
+                          final updatedTodo = todo.copyWith(isDone: value);
+                          context.read<TodoBloc>().add(EditTodo(updatedTodo));
+                        },
+                      ),
+                    ),
                   ),
-                  onTap: () {
-                    final updated = todo.copyWith(isDone: !todo.isDone);
-                    context.read<TodoBloc>().add(EditTodo(updated));
-                  },
                 );
               },
             );
