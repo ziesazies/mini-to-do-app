@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:implicitly_animated_reorderable_list_2/implicitly_animated_reorderable_list_2.dart';
@@ -8,6 +6,8 @@ import 'package:mini_to_do_app/domain/entities/todo.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_bloc.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_event.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_state.dart';
+import 'package:mini_to_do_app/presentation/pages/add_todo_page.dart';
+import 'package:mini_to_do_app/presentation/pages/todo_detail_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TodoListPage extends StatelessWidget {
@@ -48,44 +48,35 @@ class TodoListPage extends StatelessWidget {
               itemBuilder: (context, animation, todo, index) {
                 return SizeFadeTransition(
                   animation: animation,
-                  child: Dismissible(
-                    key: Key(todo.id),
-                    background: Container(
-                      color: Colors.red,
-                      alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.symmetric(horizontal: 50),
-                      child: const Icon(Icons.delete, color: Colors.white),
+                  child: ListTile(
+                    title: Text(
+                      todo.title,
+                      style: TextStyle(
+                        decoration:
+                            todo.isDone ? TextDecoration.lineThrough : null,
+                      ),
                     ),
-                    secondaryBackground: Container(
-                      color: Colors.red,
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.symmetric(horizontal: 50),
-                      child: const Icon(Icons.delete, color: Colors.white),
+                    subtitle: Text(todo.category),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Checkbox(
+                          value: todo.isDone,
+                          onChanged: (value) {
+                            final updatedTodo = todo.copyWith(isDone: value);
+                            context.read<TodoBloc>().add(EditTodo(updatedTodo));
+                          },
+                        ),
+                      ],
                     ),
-                    direction: DismissDirection.horizontal,
-                    onDismissed: (_) {
-                      context.read<TodoBloc>().add(DeleteTodo(todo.id));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('${todo.title} deleted')),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TodoDetailPage(todo: todo),
+                        ),
                       );
                     },
-                    child: ListTile(
-                      title: Text(
-                        todo.title,
-                        style: TextStyle(
-                          decoration:
-                              todo.isDone ? TextDecoration.lineThrough : null,
-                        ),
-                      ),
-                      subtitle: Text(todo.category),
-                      trailing: Checkbox(
-                        value: todo.isDone,
-                        onChanged: (value) {
-                          final updatedTodo = todo.copyWith(isDone: value);
-                          context.read<TodoBloc>().add(EditTodo(updatedTodo));
-                        },
-                      ),
-                    ),
                   ),
                 );
               },
@@ -96,13 +87,17 @@ class TodoListPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          final newTodo = Todo(
-            id: Random().nextInt(999999).toString(),
-            title: 'New Todo',
-            description: 'Test',
-            category: 'Work',
+          // final newTodo = Todo(
+          //   id: Random().nextInt(999999).toString(),
+          //   title: 'New Todo',
+          //   description: 'Test',
+          //   category: 'Work',
+          // );
+          // context.read<TodoBloc>().add(AddTodo(newTodo));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddTodoPage()),
           );
-          context.read<TodoBloc>().add(AddTodo(newTodo));
         },
         child: const Icon(Icons.add),
       ),

@@ -47,7 +47,7 @@ class Todo {
     'id': id,
     'title': title,
     'description': description,
-    'deadlline': deadline,
+    'deadline': deadline?.toIso8601String(),
     'category': category,
     'isDone': isDone,
   };
