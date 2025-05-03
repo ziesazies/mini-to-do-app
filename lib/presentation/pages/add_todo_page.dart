@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:mini_to_do_app/domain/entities/todo.dart';
+import 'package:mini_to_do_app/presentation/blocs/category/category_bloc.dart';
+import 'package:mini_to_do_app/presentation/blocs/category/category_event.dart';
+import 'package:mini_to_do_app/presentation/blocs/category/category_state.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_bloc.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_event.dart';
 
@@ -108,22 +111,59 @@ class _AddTodoPageState extends State<AddTodoPage> {
                   },
                 ),
                 const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  items:
-                      ['General', 'Work', 'Personal']
-                          .map(
-                            (e) => DropdownMenuItem(value: e, child: Text(e)),
-                          )
-                          .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedCategory = value;
-                      });
+                // DropdownButtonFormField<String>(
+                //   items:
+                //       ['General', 'Work', 'Personal']
+                //           .map(
+                //             (e) => DropdownMenuItem(value: e, child: Text(e)),
+                //           )
+                //           .toList(),
+                //   onChanged: (value) {
+                //     if (value != null) {
+                //       setState(() {
+                //         _selectedCategory = value;
+                //       });
+                //     }
+                //   },
+                // ),
+                BlocBuilder<CategoryBloc, CategoryState>(
+                  builder: (context, state) {
+                    if (state is CategoryLoaded) {
+                      final categories = [...state.categories, '+ New'];
+                      return DropdownButtonFormField<String>(
+                        items:
+                            categories.map((category) {
+                              return DropdownMenuItem(
+                                value: category,
+                                child: Text(category),
+                              );
+                            }).toList(),
+                        onChanged: (value) async {
+                          if (value == '+ New') {
+                            final _newCategory = await _showAddCategoryDialog(
+                              context,
+                            );
+                            if (_newCategory != null &&
+                                _newCategory.isNotEmpty) {
+                              context.read<CategoryBloc>().add(
+                                AddCategory(_newCategory),
+                              );
+                              setState(() {
+                                _selectedCategory = _newCategory;
+                              });
+                            }
+                          } else if (value != null) {
+                            _selectedCategory = value;
+                          }
+                        },
+                        decoration: InputDecoration(labelText: "Category"),
+                      );
+                    } else {
+                      return const CircularProgressIndicator();
                     }
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
                     _onSubmit();
@@ -135,6 +175,33 @@ class _AddTodoPageState extends State<AddTodoPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<String?> _showAddCategoryDialog(BuildContext context) {
+    final controller = TextEditingController();
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Add New Category"),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(hintText: "Category Name"),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: Text("Create"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

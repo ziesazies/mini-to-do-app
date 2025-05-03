@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mini_to_do_app/data/datasources/todo_local_storage.dart';
+import 'package:mini_to_do_app/presentation/blocs/category/category_bloc.dart';
+import 'package:mini_to_do_app/presentation/blocs/category/category_event.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_bloc.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_event.dart';
 import 'package:mini_to_do_app/presentation/pages/login_page.dart';
@@ -22,8 +24,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => TodoBloc(storage)..add(LoadTodos()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => TodoBloc(storage)..add(LoadTodos())),
+        BlocProvider(create: (_) => CategoryBloc()..add(LoadCategories())),
+      ],
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
