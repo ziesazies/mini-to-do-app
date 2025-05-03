@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:mini_to_do_app/domain/entities/todo.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_bloc.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_event.dart';
@@ -86,9 +87,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                 ListTile(
                   title: Text(
                     _selectedDeadline != null
-                        ? 'Deadline: ${_selectedDeadline!.toLocal()}'.split(
-                          ' ',
-                        )[0]
+                        ? 'Deadline: ${DateFormat('yyyy-MM-dd').format(_selectedDeadline!)}'
                         : 'Select Deadline (optional)',
                   ),
                   trailing: const Icon(Icons.calendar_today),
