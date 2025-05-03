@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mini_to_do_app/domain/entities/todo.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_bloc.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_event.dart';
+import 'package:mini_to_do_app/presentation/pages/add_todo_page.dart';
 
 class TodoDetailPage extends StatelessWidget {
   final Todo todo;
@@ -21,6 +21,17 @@ class TodoDetailPage extends StatelessWidget {
             onPressed: () {
               _showDeleteDialog(context);
             },
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AddTodoPage(existingTodo: todo),
+                ),
+              );
+            },
+            icon: Icon(Icons.edit),
           ),
         ],
       ),

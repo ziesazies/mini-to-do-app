@@ -7,7 +7,9 @@ import 'package:mini_to_do_app/presentation/blocs/todo/todo_bloc.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_event.dart';
 
 class AddTodoPage extends StatefulWidget {
-  const AddTodoPage({super.key});
+  final Todo? existingTodo;
+
+  const AddTodoPage({super.key, this.existingTodo});
 
   @override
   State<AddTodoPage> createState() => _AddTodoPageState();
@@ -17,13 +19,53 @@ class _AddTodoPageState extends State<AddTodoPage> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
+
   DateTime? _selectedDeadline;
   String _selectedCategory = 'General';
 
   @override
+  void initState() {
+    super.initState();
+    _titleController.text = widget.existingTodo?.title ?? '';
+    _descriptionController.text = widget.existingTodo?.description ?? '';
+    _selectedDeadline = widget.existingTodo?.deadline;
+    _selectedCategory = widget.existingTodo?.category ?? 'General';
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  void _onSubmit() {
+    if (_formKey.currentState!.validate()) {
+      final isEditing = widget.existingTodo != null;
+      final newTodo = Todo(
+        id:
+            isEditing
+                ? widget.existingTodo!.id
+                : Random().nextInt(99999).toString(),
+        title: _titleController.text,
+        description:
+            _descriptionController.text.isEmpty
+                ? null
+                : _descriptionController.text,
+        deadline: _selectedDeadline,
+        category: _selectedCategory,
+      );
+      final event = isEditing ? EditTodo(newTodo) : AddTodo(newTodo);
+      context.read<TodoBloc>().add(event);
+      Navigator.pop(context);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isEditing = widget.existingTodo != null;
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Todo')),
+      appBar: AppBar(title: Text(isEditing ? 'Edit Todo' : 'Add Todo')),
       body: Padding(
         padding: EdgeInsets.all(16),
         child: Form(
@@ -85,22 +127,9 @@ class _AddTodoPageState extends State<AddTodoPage> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      final newTodo = Todo(
-                        id: Random().nextInt(99999).toString(),
-                        title: _titleController.text,
-                        description:
-                            _descriptionController.text.isEmpty
-                                ? null
-                                : _descriptionController.text,
-                        deadline: _selectedDeadline,
-                        category: _selectedCategory,
-                      );
-                      context.read<TodoBloc>().add(AddTodo(newTodo));
-                      Navigator.pop(context);
-                    }
+                    _onSubmit();
                   },
-                  child: const Text('Add Todo'),
+                  child: Text(isEditing ? 'Edit Todo' : 'Add Todo'),
                 ),
               ],
             ),
