@@ -8,6 +8,7 @@ import 'package:mini_to_do_app/presentation/blocs/todo/todo_event.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_state.dart';
 import 'package:mini_to_do_app/presentation/pages/add_todo_page.dart';
 import 'package:mini_to_do_app/presentation/pages/todo_detail_page.dart';
+import 'package:mini_to_do_app/presentation/widgets/category_filter_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TodoListPage extends StatelessWidget {
@@ -32,6 +33,18 @@ class TodoListPage extends StatelessWidget {
             },
           ),
         ],
+        leading: IconButton(
+          onPressed: () async {
+            final selectedCategory = await showModalBottomSheet<String>(
+              context: context,
+              builder: (context) => CategoryFilterSheet(),
+            );
+            if (selectedCategory != null) {
+              context.read<TodoBloc>().add(FilterByCategory(selectedCategory));
+            }
+          },
+          icon: Icon(Icons.filter_list),
+        ),
       ),
       body: BlocBuilder<TodoBloc, TodoState>(
         builder: (context, state) {

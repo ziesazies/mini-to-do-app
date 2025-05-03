@@ -18,3 +18,8 @@ class DeleteTodo extends TodoEvent {
   final String id;
   DeleteTodo(this.id);
 }
+
+class FilterByCategory extends TodoEvent {
+  final String category;
+  FilterByCategory(this.category);
+}
