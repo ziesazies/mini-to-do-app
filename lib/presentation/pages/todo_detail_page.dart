@@ -3,15 +3,39 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mini_to_do_app/domain/entities/todo.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_bloc.dart';
 import 'package:mini_to_do_app/presentation/blocs/todo/todo_event.dart';
+import 'package:mini_to_do_app/presentation/blocs/todo/todo_state.dart';
 import 'package:mini_to_do_app/presentation/pages/add_todo_page.dart';
 
 class TodoDetailPage extends StatelessWidget {
-  final Todo todo;
+  final String todoId;
 
-  const TodoDetailPage({super.key, required this.todo});
+  const TodoDetailPage({super.key, required this.todoId});
 
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<TodoBloc>().state;
+
+    if (state is! TodoLoaded) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final todoList = state.todos.where((t) => t.id == todoId).toList();
+    if (todoList.isEmpty) {
+      Future.microtask(
+        () => Navigator.pushNamedAndRemoveUntil(
+          context,
+          "/todoList",
+          (route) => false,
+        ),
+      );
+      return const Scaffold(
+        body: CircularProgressIndicator(),
+        backgroundColor: Colors.white,
+      );
+    }
+
+    final todo = todoList.first;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Todo Detail"),
@@ -19,7 +43,7 @@ class TodoDetailPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () {
-              _showDeleteDialog(context);
+              _showDeleteDialog(context, todo);
             },
           ),
           IconButton(
@@ -70,7 +94,7 @@ class TodoDetailPage extends StatelessWidget {
     );
   }
 
-  void _showDeleteDialog(BuildContext context) {
+  void _showDeleteDialog(BuildContext context, Todo todo) {
     showDialog(
       context: context,
       builder:
@@ -85,7 +109,6 @@ class TodoDetailPage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () {
                   context.read<TodoBloc>().add(DeleteTodo(todo.id));
-                  Navigator.pop(context);
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('${todo.title} deleted')),

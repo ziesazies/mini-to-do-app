@@ -73,7 +73,7 @@ class TodoListPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => TodoDetailPage(todo: todo),
+                          builder: (_) => TodoDetailPage(todoId: todo.id),
                         ),
                       );
                     },
