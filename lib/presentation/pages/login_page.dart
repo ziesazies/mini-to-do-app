@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mini_to_do_app/presentation/blocs/login/login_bloc.dart';
 import 'package:mini_to_do_app/presentation/blocs/login/login_event.dart';
 import 'package:mini_to_do_app/presentation/blocs/login/login_state.dart';
+import 'package:mini_to_do_app/presentation/widgets/custom_input_field.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,6 +15,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  var _passwordVisible = false;
 
   @override
   void dispose() {
@@ -33,9 +35,16 @@ class _LoginPageState extends State<LoginPage> {
             if (state is LoginSuccess) {
               Navigator.pushReplacementNamed(context, '/todoList');
             } else if (state is LoginFailure) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Text(
+                      "There is an error while login, please check your email and password",
+                    ),
+                  ),
+                ),
+              );
             }
           },
           builder: (context, state) {
@@ -43,36 +52,62 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  TextField(
+                  CustomInputField(
+                    label: "username",
+                    hintText: "Masukkan Username",
                     controller: _usernameController,
-                    decoration: const InputDecoration(labelText: "Username"),
                   ),
-                  TextField(
+                  SizedBox(height: 8),
+                  CustomInputField(
+                    label: "password",
+                    hintText: "Masukkan Password",
                     controller: _passwordController,
-                    decoration: const InputDecoration(labelText: "Password"),
-                    obscureText: true,
+                    isPassword: true,
+                    obscureText: !_passwordVisible,
+                    toggleObscureText: () {
+                      setState(() {
+                        _passwordVisible = !_passwordVisible;
+                      });
+                    },
                   ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed:
-                        state is LoginLoading
-                            ? null
-                            : () {
-                              context.read<LoginBloc>().add(
-                                LoginSubmitted(
-                                  username: _usernameController.text,
-                                  password: _passwordController.text,
+                  SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: FilledButton(
+                      onPressed:
+                          state is LoginLoading
+                              ? null
+                              : () {
+                                context.read<LoginBloc>().add(
+                                  LoginSubmitted(
+                                    username: _usernameController.text,
+                                    password: _passwordController.text,
+                                  ),
+                                );
+                              },
+                      style: FilledButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child:
+                          state is LoginLoading
+                              ? const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
                                 ),
-                              );
-                            },
-                    child:
-                        state is LoginLoading
-                            ? const SizedBox(
-                              height: 16,
-                              width: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                            : const Text("Login"),
+                              )
+                              : const Text(
+                                "Login",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                    ),
                   ),
                 ],
               ),
