@@ -100,13 +100,6 @@ class TodoListPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // final newTodo = Todo(
-          //   id: Random().nextInt(999999).toString(),
-          //   title: 'New Todo',
-          //   description: 'Test',
-          //   category: 'Work',
-          // );
-          // context.read<TodoBloc>().add(AddTodo(newTodo));
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const AddTodoPage()),
