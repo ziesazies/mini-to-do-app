@@ -6,8 +6,8 @@ A simple and elegant To-Do List mobile application built using **Flutter**, **Bl
 
 ## 🚀 Flutter Version
 
-- **Flutter SDK**: `>=3.19.0`
-- **Dart**: `>=3.3.0`
+- **Flutter SDK**: `>=3.29.3`
+- **Dart**: `>=3.7.2`
 ---
 
 ## 📦 Project Specifications
@@ -35,14 +35,22 @@ A simple and elegant To-Do List mobile application built using **Flutter**, **Bl
 ✅ The app should build and run without error after following these steps.
 
 # 🧱 Folder Structure
+```bash
 lib/
-├── blocs/                  # Bloc logic (events, states, bloc)
-│   └── todo/
+├── data/
+│   └── datasources/        # Local storage handling with SharedPreferences
+├── domain/                 # Data models (Todo, Category)
+├── presentation/           
+│   └── blocs/              # Bloc logic (events, states, bloc)
+│     └── category/
+│     └── login/
+│     └── todo/
+│   └── pages/              # UI pages (Login, Todo List, Add/Edit Todo)
+├── widgets/               # Reusable UI components
 ├── models/                # Data models (Todo, Category)
-├── pages/                 # UI pages (Login, Todo List, Add/Edit Todo)
-├── repositories/          # Local storage handling with SharedPreferences
 ├── widgets/               # Reusable UI components
 └── main.dart              # App entry point
+```
 
 # ✨ Features
 * 🔐 Login Screen
