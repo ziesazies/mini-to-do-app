@@ -9,10 +9,18 @@ import 'package:mini_to_do_app/presentation/blocs/todo/todo_state.dart';
 import 'package:mini_to_do_app/presentation/pages/add_todo_page.dart';
 import 'package:mini_to_do_app/presentation/pages/todo_detail_page.dart';
 import 'package:mini_to_do_app/presentation/widgets/category_filter_sheet.dart';
+import 'package:mini_to_do_app/presentation/widgets/todo_tile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class TodoListPage extends StatelessWidget {
+class TodoListPage extends StatefulWidget {
   const TodoListPage({super.key});
+
+  @override
+  State<TodoListPage> createState() => _TodoListPageState();
+}
+
+class _TodoListPageState extends State<TodoListPage> {
+  String _currentCategory = "All";
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +48,9 @@ class TodoListPage extends StatelessWidget {
               builder: (context) => CategoryFilterSheet(),
             );
             if (selectedCategory != null) {
+              setState(() {
+                _currentCategory = selectedCategory;
+              });
               context.read<TodoBloc>().add(FilterByCategory(selectedCategory));
             }
           },
@@ -55,33 +66,127 @@ class TodoListPage extends StatelessWidget {
               if (!a.isDone && b.isDone) return -1;
               return 0;
             });
+
+            // Show empty state if the filtered list is empty
+
+            if (todos.isEmpty && _currentCategory != "All") {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+
+                  children: [
+                    Icon(
+                      Icons.note_alt_outlined,
+
+                      size: 80,
+
+                      color: Colors.grey[400],
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    Text(
+                      'Category $_currentCategory is empty at this time.',
+
+                      style: TextStyle(
+                        fontSize: 16,
+
+                        color: Colors.grey[600],
+
+                        fontWeight: FontWeight.w500,
+                      ),
+
+                      textAlign: TextAlign.center,
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      'Try creating new to-do.',
+
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            // Show empty state if no todos exist at all
+
+            if (todos.isEmpty && _currentCategory == "All") {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+
+                  children: [
+                    Icon(
+                      Icons.note_alt_outlined,
+
+                      size: 80,
+
+                      color: Colors.grey[400],
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    Text(
+                      'No to-dos available.',
+
+                      style: TextStyle(
+                        fontSize: 16,
+
+                        color: Colors.grey[600],
+
+                        fontWeight: FontWeight.w500,
+                      ),
+
+                      textAlign: TextAlign.center,
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      'Create your first to-do!',
+
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
+            }
+
             return ImplicitlyAnimatedList<Todo>(
               areItemsTheSame: (oldItem, newItem) => oldItem.id == newItem.id,
               items: todos,
               itemBuilder: (context, animation, todo, index) {
                 return SizeFadeTransition(
                   animation: animation,
-                  child: ListTile(
-                    title: Text(
-                      todo.title,
-                      style: TextStyle(
-                        decoration:
-                            todo.isDone ? TextDecoration.lineThrough : null,
-                      ),
-                    ),
-                    subtitle: Text(todo.category),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Checkbox(
-                          value: todo.isDone,
-                          onChanged: (value) {
-                            final updatedTodo = todo.copyWith(isDone: value);
-                            context.read<TodoBloc>().add(EditTodo(updatedTodo));
-                          },
+                  child: ToDoTile(
+                    taskName: todo.title,
+                    taskCategory: todo.category,
+                    taskCompleted: todo.isDone,
+                    onChanged: (p0) {
+                      final updatedTodo = todo.copyWith(isDone: p0);
+                      context.read<TodoBloc>().add(EditTodo(updatedTodo));
+                    },
+                    deleteFunction: (p0) {
+                      context.read<TodoBloc>().add(DeleteTodo(todo.id));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("${todo.title} deleted"),
+                          action: SnackBarAction(
+                            label: "Undo",
+                            onPressed: () {
+                              context.read<TodoBloc>().add(AddTodo(todo));
+                            },
+                          ),
                         ),
-                      ],
-                    ),
+                      );
+                    },
                     onTap: () {
                       Navigator.push(
                         context,

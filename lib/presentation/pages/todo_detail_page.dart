@@ -60,22 +60,70 @@ class TodoDetailPage extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(todo.title, style: Theme.of(context).textTheme.headlineMedium),
-            const SizedBox(height: 12),
-            Text(
-              "Category ${todo.category}",
-              style: Theme.of(context).textTheme.bodyLarge,
+            // Title Card
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    todo.title,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.folder, color: Colors.purple),
+                      const SizedBox(width: 8),
+                      Text(
+                        todo.category,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              todo.description ?? "",
-              style: Theme.of(context).textTheme.bodyMedium,
+
+            const SizedBox(height: 20),
+
+            // Description Card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Description",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    todo.description?.isNotEmpty == true
+                        ? todo.description!
+                        : 'No description.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
             ),
+
             const Spacer(),
+
+            // Status & Toggle
             Row(
               children: [
                 Checkbox(
@@ -85,6 +133,14 @@ class TodoDetailPage extends StatelessWidget {
                     context.read<TodoBloc>().add(EditTodo(updatedTodo));
                     Navigator.pop(context);
                   },
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  todo.isDone ? "Completed" : "Mark as Done",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: todo.isDone ? Colors.green : Colors.black,
+                  ),
                 ),
               ],
             ),

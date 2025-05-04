@@ -77,38 +77,79 @@ class _AddTodoPageState extends State<AddTodoPage> {
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: "Title"),
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty
-                            ? 'Title is required'
-                            : null,
-              ),
-              const SizedBox(height: 16),
-              ListTile(
-                title: Text(
-                  _selectedDeadline != null
-                      ? 'Deadline: ${DateFormat('yyyy-MM-dd').format(_selectedDeadline!)}'
-                      : 'Select Deadline (optional)',
+              const Text("Todo Title"),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
                 ),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime.now().subtract(const Duration(days: 1)),
-                    lastDate: DateTime(2100),
-                  );
-                  if (picked != null) {
-                    setState(() {
-                      _selectedDeadline = picked;
-                    });
-                  }
-                },
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: InputDecoration(
+                        // hintText: "Masukkan todo title",
+                        border: InputBorder.none,
+                      ),
+                      validator:
+                          (value) =>
+                              value == null || value.isEmpty
+                                  ? 'Title is required'
+                                  : null,
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
+              const Text("Todo Deadline (optional)"),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                margin: const EdgeInsets.only(bottom: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(0),
+                  title: Text(
+                    _selectedDeadline != null
+                        ? 'Deadline: ${DateFormat('yyyy-MM-dd').format(_selectedDeadline!)}'
+                        : '',
+                    style: TextStyle(
+                      color:
+                          _selectedDeadline != null
+                              ? Colors.black
+                              : Colors.grey,
+                    ),
+                  ),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now().subtract(
+                        const Duration(days: 1),
+                      ),
+                      lastDate: DateTime(2100),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _selectedDeadline = picked;
+                      });
+                    }
+                  },
+                  trailing: const Icon(Icons.calendar_today),
+                ),
+              ),
+
+              // const SizedBox(height: 16),
               BlocBuilder<CategoryBloc, CategoryState>(
                 builder: (context, state) {
                   if (state is CategoryLoaded) {
@@ -117,11 +158,156 @@ class _AddTodoPageState extends State<AddTodoPage> {
                     if (!categories.contains(_selectedCategory)) {
                       categories.add(_selectedCategory);
                     }
-
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    return Column(
                       children: [
-                        Expanded(
+                        Row(
+                          children: [
+                            const Text("Category"),
+                            IconButton(
+                              onPressed: () async {
+                                final _newCategory =
+                                    await _showAddCategoryDialog(
+                                      context,
+                                      false,
+                                      null,
+                                    );
+                                if (_newCategory != null &&
+                                    _newCategory.isNotEmpty) {
+                                  if (_newCategory.toLowerCase() == 'general') {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Cannot create category named 'General'.",
+                                        ),
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  context.read<CategoryBloc>().add(
+                                    AddCategory(_newCategory),
+                                  );
+                                  setState(() {
+                                    _selectedCategory = _newCategory;
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "'$_newCategory' category has been added",
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              icon: const Icon(Icons.add),
+                            ),
+                            IconButton(
+                              onPressed: () async {
+                                final _toDelete = await _showAddCategoryDialog(
+                                  context,
+                                  true,
+                                  categories,
+                                );
+                                if (_toDelete != null ||
+                                    _toDelete == 'General') {
+                                  if (_toDelete == 'General') {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Cannot delete 'General' category.",
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  final todoBloc = context.read<TodoBloc>();
+                                  final currentTodos =
+                                      (todoBloc.state is TodoLoaded)
+                                          ? (todoBloc.state as TodoLoaded).todos
+                                          : [];
+
+                                  final matchingTodos =
+                                      currentTodos
+                                          .where(
+                                            (todo) =>
+                                                todo.category == _toDelete,
+                                          )
+                                          .toList();
+                                  if (matchingTodos.isNotEmpty) {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder:
+                                          (context) => AlertDialog(
+                                            title: const Text(
+                                              "Delete Category",
+                                            ),
+                                            content: Text(
+                                              "You have ${matchingTodos.length} todos in the '$_toDelete' category. "
+                                              "Deleting this category will also delete these todos. Are you sure?",
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {},
+                                                child: TextButton(
+                                                  onPressed:
+                                                      () => Navigator.pop(
+                                                        context,
+                                                        false,
+                                                      ),
+                                                  child: Text("Cancel"),
+                                                ),
+                                              ),
+                                              TextButton(
+                                                onPressed:
+                                                    () => Navigator.pop(
+                                                      context,
+                                                      true,
+                                                    ),
+                                                child: Text("Delete All"),
+                                              ),
+                                            ],
+                                          ),
+                                    );
+
+                                    if (confirm != true) return;
+
+                                    for (var todo in matchingTodos) {
+                                      todoBloc.add(DeleteTodo(todo.id));
+                                    }
+                                  }
+
+                                  context.read<CategoryBloc>().add(
+                                    DeleteCategory(_toDelete ?? ''),
+                                  );
+
+                                  if (_selectedCategory == _toDelete) {
+                                    setState(() {
+                                      _selectedCategory = 'General';
+                                    });
+                                  }
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "'$_toDelete' category has been deleted",
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              // },
+                              icon: const Icon(Icons.remove),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          margin: const EdgeInsets.only(bottom: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                           child: DropdownButtonFormField<String>(
                             value: _selectedCategory,
                             items:
@@ -140,139 +326,10 @@ class _AddTodoPageState extends State<AddTodoPage> {
                                 });
                               }
                             },
-                            decoration: const InputDecoration(
-                              labelText: "Category",
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        IconButton(
-                          onPressed: () async {
-                            final _newCategory = await _showAddCategoryDialog(
-                              context,
-                              false,
-                              null,
-                            );
-                            if (_newCategory != null &&
-                                _newCategory.isNotEmpty) {
-                              if (_newCategory.toLowerCase() == 'general') {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Cannot create category named 'General'.",
-                                    ),
-                                  ),
-                                );
-                                return;
-                              }
-                              context.read<CategoryBloc>().add(
-                                AddCategory(_newCategory),
-                              );
-                              setState(() {
-                                _selectedCategory = _newCategory;
-                              });
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "'$_newCategory' category has been added",
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                          icon: const Icon(Icons.add),
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            final _toDelete = await _showAddCategoryDialog(
-                              context,
-                              true,
-                              categories,
-                            );
-                            if (_toDelete != null || _toDelete == 'General') {
-                              if (_toDelete == 'General') {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Cannot delete 'General' category.",
-                                    ),
-                                  ),
-                                );
-                              }
-                              final todoBloc = context.read<TodoBloc>();
-                              final currentTodos =
-                                  (todoBloc.state is TodoLoaded)
-                                      ? (todoBloc.state as TodoLoaded).todos
-                                      : [];
-
-                              final matchingTodos =
-                                  currentTodos
-                                      .where(
-                                        (todo) => todo.category == _toDelete,
-                                      )
-                                      .toList();
-                              if (matchingTodos.isNotEmpty) {
-                                final confirm = await showDialog<bool>(
-                                  context: context,
-                                  builder:
-                                      (context) => AlertDialog(
-                                        title: const Text("Delete Category"),
-                                        content: Text(
-                                          "You have ${matchingTodos.length} todos in the '$_toDelete' category. "
-                                          "Deleting this category will also delete these todos. Are you sure?",
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {},
-                                            child: TextButton(
-                                              onPressed:
-                                                  () => Navigator.pop(
-                                                    context,
-                                                    false,
-                                                  ),
-                                              child: Text("Cancel"),
-                                            ),
-                                          ),
-                                          TextButton(
-                                            onPressed:
-                                                () => Navigator.pop(
-                                                  context,
-                                                  true,
-                                                ),
-                                            child: Text("Delete All"),
-                                          ),
-                                        ],
-                                      ),
-                                );
-
-                                if (confirm != true) return;
-
-                                for (var todo in matchingTodos) {
-                                  todoBloc.add(DeleteTodo(todo.id));
-                                }
-                              }
-
-                              context.read<CategoryBloc>().add(
-                                DeleteCategory(_toDelete ?? ''),
-                              );
-
-                              if (_selectedCategory == _toDelete) {
-                                setState(() {
-                                  _selectedCategory = 'General';
-                                });
-                              }
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "'$_toDelete' category has been deleted",
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                          // },
-                          icon: const Icon(Icons.remove),
                         ),
                       ],
                     );
@@ -281,6 +338,24 @@ class _AddTodoPageState extends State<AddTodoPage> {
                   }
                 },
               ),
+              Text("Description (optional)"),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: TextFormField(
+                  controller: _descriptionController,
+                  maxLines: 2,
+                  decoration: InputDecoration(border: InputBorder.none),
+                ),
+              ),
+
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _onSubmit,
