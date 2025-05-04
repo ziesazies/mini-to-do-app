@@ -13,17 +13,20 @@ class CategoryFilterSheet extends StatelessWidget {
         if (state is CategoryLoaded) {
           final categories = ['All', ...state.categories];
 
-          return ListView(
-            shrinkWrap: true,
-            children:
-                categories.map((category) {
-                  return ListTile(
-                    title: Text(category),
-                    onTap: () {
-                      Navigator.pop(context, category);
-                    },
-                  );
-                }).toList(),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: ListView(
+              shrinkWrap: true,
+              children:
+                  categories.map((category) {
+                    return ListTile(
+                      title: Text(category),
+                      onTap: () {
+                        Navigator.pop(context, category);
+                      },
+                    );
+                  }).toList(),
+            ),
           );
         } else {
           return const Center(child: CircularProgressIndicator());
