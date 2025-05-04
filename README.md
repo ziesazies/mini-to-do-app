@@ -1,16 +1,66 @@
-# mini_to_do_app
+# 📋 To-Do List App with Flutter + Bloc
 
-A new Flutter project.
+A simple and elegant To-Do List mobile application built using **Flutter**, **Bloc** for state management, and **SharedPreferences** for local storage. Users can add, edit, delete, and categorize todos locally with persistent data even after restarting the app.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Flutter Version
 
-A few resources to get you started if this is your first Flutter project:
+- **Flutter SDK**: `>=3.19.0`
+- **Dart**: `>=3.3.0`
+---
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 📦 Project Specifications
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **State Management**: [flutter_bloc](https://pub.dev/packages/flutter_bloc)
+- **Local Storage**: [shared_preferences](https://pub.dev/packages/shared_preferences)
+- **Routing**: Flutter's built-in `Navigator`
+- **UI**: Material 3 design, modern card-style layout
+- **Architecture**: Clean separation between UI, logic (Bloc), and storage layer
+
+---
+
+## 🛠️ Project Setup & Build Instructions
+
+1. **Clone this repository**:
+   ```bash
+   git clone https://github.com/your-username/todo-flutter-app.git
+   cd todo-flutter-app
+2. **Install dependencies**
+   ```bash 
+   flutter pub get
+3. **Run the App**
+   ```bash
+   flutter run
+✅ The app should build and run without error after following these steps.
+
+# 🧱 Folder Structure
+lib/
+├── blocs/                  # Bloc logic (events, states, bloc)
+│   └── todo/
+├── models/                # Data models (Todo, Category)
+├── pages/                 # UI pages (Login, Todo List, Add/Edit Todo)
+├── repositories/          # Local storage handling with SharedPreferences
+├── widgets/               # Reusable UI components
+└── main.dart              # App entry point
+
+# ✨ Features
+* 🔐 Login Screen
+    * Hardcoded username & password
+    * Simple validation
+* ✅ CRUD To-Do
+    * Create, edit, delete, and mark todos as done
+    * Clean and responsive UI
+* 🗂 Category System
+    * Select or create new categories when adding todos
+    * Named-based category indicator
+* 📥 Local Persistence
+    * All data is saved locally using SharedPreferences
+    * Persistent across app restarts
+* 🎯 Clean Architecture
+    * Bloc pattern with separation of concerns
+    * Easy to maintain and scale
+# 📸 Preview
+
+# 📄 License
+###### This project is open source and available under the MIT License.
