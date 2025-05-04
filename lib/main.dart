@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
+        debugShowCheckedModeBanner: false,
         home: isLoggedIn ? const TodoListPage() : const LoginPage(),
         routes: {
           '/login': (_) => const LoginPage(),
