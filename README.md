@@ -68,7 +68,32 @@ lib/
 * 🎯 Clean Architecture
     * Bloc pattern with separation of concerns
     * Easy to maintain and scale
-# 📸 Preview
+# 🌱 Upcoming Features
+These enhancements are in the roadmap for future development:
+* 🎨 Emoji Picker for Categories
+Add emojis to visually represent categories
+* 📆 Deadline Date Filtering
+Filter tasks based on due dates or overdue status
+* 🧩 Multi-Category Section View
+View todos grouped by category in collapsible/expandable sections
+* 🔗 Firebase Integration
+Cloud Firestore for real-time sync and data backup
+Support for both online and offline modes
+* 🔐 Google Authentication
+Replace hardcoded login with Google Sign-In
+Seamless and secure user management
 
 # 📄 License
 ###### This project is open source and available under the MIT License.
+
+# 📸 Preview
+* Login Page
+* To Do List Page
+* To Do Detail Page
+* Filter by Category Page
+<p float="left">
+   <img src="https://github.com/ziesazies/mini-to-do-app/blob/docs/docs/images/pic1.png?raw=true" width="150" height="280">
+   <img src="https://github.com/ziesazies/mini-to-do-app/blob/docs/docs/images/pic4.png?raw=true" width="150" height="280">
+   <img src="https://github.com/ziesazies/mini-to-do-app/blob/docs/docs/images/pic5.png?raw=true" width="150" height="280">
+   <img src="https://github.com/ziesazies/mini-to-do-app/blob/docs/docs/images/pic11.png?raw=true" width="150" height="280">
+</p>
