@@ -11,3 +11,8 @@ class UpdateCategory extends CategoryEvent {
   final String category;
   UpdateCategory(this.category);
 }
+
+class DeleteCategory extends CategoryEvent {
+  final String category;
+  DeleteCategory(this.category);
+}
