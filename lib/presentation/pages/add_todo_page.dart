@@ -135,7 +135,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                       context: context,
                       initialDate: DateTime.now(),
                       firstDate: DateTime.now().subtract(
-                        const Duration(days: 1),
+                        const Duration(days: 0),
                       ),
                       lastDate: DateTime(2100),
                     );
