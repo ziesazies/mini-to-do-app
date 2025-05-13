@@ -32,6 +32,10 @@ A simple and elegant To-Do List mobile application built using **Flutter**, **Bl
 3. **Run the App**
    ```bash
    flutter run
+4. **Login username and password**
+   ```bash
+   username: admin
+   password: admin
 ✅ The app should build and run without error after following these steps.
 
 # 🧱 Folder Structure
